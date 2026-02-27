@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📏 Teacher-Approved Unit Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            max-width: 550px;
+            width: 100%;
+            border-radius: 48px;
+            padding: 45px 40px;
+            box-shadow: 0 30px 50px -20px #1e293b99;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .badge {
+            background: #e6f0ff;
+            color: #1d4ed8;
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .selector {
+            margin-bottom: 30px;
+        }
+
+        select {
+            width: 100%;
+            padding: 18px 24px;
+            border-radius: 40px;
+            border: 2px solid #e2e8f0;
+            font-size: 1.1rem;
+            background: #fafcff;
+            font-weight: 500;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23334155%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 20px;
+        }
+
+        select:focus {
+            border-color: #2563eb;
+            outline: none;
+        }
+
+        .converter-box {
+            background: #f1f5f9;
+            border-radius: 40px;
+            padding: 30px 25px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 18px 22px;
+            border-radius: 30px;
+            border: 2px solid #cbd5e1;
+            font-size: 1.2rem;
+            background: white;
+            transition: 0.15s;
+        }
+
+        .input-group input:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px #2563eb20;
+        }
+
+        .input-group input[readonly] {
+            background: #e9ecf2;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .swap-icon {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #475569;
+            margin: 5px 0;
+            font-weight: 300;
+        }
+
+        .formula-hint {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 40px;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #62748c;
+            text-align: center;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📐 Unit Converter</h1>
+        <div class="badge">✓ Teacher approved · No ads</div>
+
+        <div class="selector">
+            <select id="conversionType">
+                <option value="length">Length (meters ⇄ feet)</option>
+                <option value="volume">Volume (liters ⇄ gallons)</option>
+                <option value="mass">Mass (kilograms ⇄ pounds)</option>
+                <option value="temperature">Temperature (°C ⇄ °F)</option>
+            </select>
+        </div>
+
+        <div class="converter-box">
+            <div class="input-group">
+                <label id="fromLabel">From (meters):</label>
+                <input type="number" id="fromValue" placeholder="0" step="any" value="1">
+            </div>
+
+            <div class="swap-icon">⇅</div>
+
+            <div class="input-group">
+                <label id="toLabel">To (feet):</label>
+                <input type="number" id="toValue" placeholder="0" step="any" readonly>
+            </div>
+
+            <div class="formula-hint" id="formulaHint">1 m = 3.28084 ft</div>
+        </div>
+
+        <div class="footer-note">
+            ⚡ Updates instantly · Type any number
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // DOM elements
+            const typeSelect = document.getElementById('conversionType');
+            const fromInput = document.getElementById('fromValue');
+            const toInput = document.getElementById('toValue');
+            const fromLabel = document.getElementById('fromLabel');
+            const toLabel = document.getElementById('toLabel');
+            const formulaHint = document.getElementById('formulaHint');
+
+            // Conversion definitions
+            const converters = {
+                length: {
+                    fromLabel: 'From (meters):',
+                    toLabel: 'To (feet):',
+                    convert: (m) => m * 3.28084,
+                    reverse: (ft) => ft / 3.28084,
+                    formula: '1 m = 3.28084 ft'
+                },
+                volume: {
+                    fromLabel: 'From (liters):',
+                    toLabel: 'To (gallons):',
+                    convert: (l) => l * 0.264172,
+                    reverse: (gal) => gal / 0.264172,
+                    formula: '1 L = 0.264172 gal'
+                },
+                mass: {
+                    fromLabel: 'From (kilograms):',
+                    toLabel: 'To (pounds):',
+                    convert: (kg) => kg * 2.20462,
+                    reverse: (lb) => lb / 2.20462,
+                    formula: '1 kg = 2.20462 lb'
+                },
+                temperature: {
+                    fromLabel: 'From (°C):',
+                    toLabel: 'To (°F):',
+                    convert: (c) => (c * 9/5) + 32,
+                    reverse: (f) => (f - 32) * 5/9,
+                    formula: '°F = (°C × 9/5) + 32'
+                }
+            };
+
+            // Update labels and hint based on selected type
+            function updateUI() {
+                const type = typeSelect.value;
+                const conv = converters[type];
+                
+                fromLabel.textContent = conv.fromLabel;
+                toLabel.textContent = conv.toLabel;
+                formulaHint.textContent = conv.formula;
+            }
+
+            // Convert from left (fromValue) to right (toValue)
+            function convertFrom() {
+                const type = typeSelect.value;
+                const conv = converters[type];
+                const val = parseFloat(fromInput.value);
+                
+                if (!isNaN(val)) {
+                    toInput.value = conv.convert(val).toFixed(4);
+                } else {
+                    toInput.value = '';
+                }
+            }
+
+            // Convert from right (toValue) to left (fromValue)
+            function convertTo() {
+                const type = typeSelect.value;
+                const conv = converters[type];
+                const val = parseFloat(toInput.value);
+                
+                if (!isNaN(val)) {
+                    fromInput.value = conv.reverse(val).toFixed(4);
+                } else {
+                    fromInput.value = '';
+                }
+            }
+
+            // Event listeners
+            typeSelect.addEventListener('change', () => {
+                updateUI();
+                convertFrom(); // Recalculate with new unit
+            });
+
+            fromInput.addEventListener('input', convertFrom);
+            
+            // Allow editing the right field too (for reverse conversion)
+            toInput.removeAttribute('readonly');
+            toInput.addEventListener('input', convertTo);
+
+            // Initialize
+            updateUI();
+            fromInput.value = '1';
+            convertFrom();
+        })();
+    </script>
+</body>
+</html>
